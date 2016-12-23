@@ -2,17 +2,19 @@
 #include <utf8.h>
 #include <boost/format.hpp>
 #include "syntax/Input.h"
+#include "syntax/Token.h"
 
 int main (void)
 {
     auto inp = InputSrc::ptr_from_input("Hello \xe2\x9e\xaf world!");
 
-    while (!inp->eof) {
-        auto word = inp->take_while([] (rune rn) { return rn != ' '; });
-        std::cout << "word: `" << word << "'" << std::endl;
+    Span span(inp);
+    inp->span_here(span);
 
-        inp->take_while([] (rune rn) { return rn == ' '; });
-    }
-    std::cout << "done" << std::endl;
+    lex::Token tok1('(', span);
+    lex::Token tok2('[', span);
+
+    std::cout << boost::format("expected %s, got %s\n") % tok1 % tok2;
+
     return 0;
 }

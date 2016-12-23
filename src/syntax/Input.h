@@ -4,7 +4,6 @@
 #include <memory>
 #include <functional>
 #include <fstream>
-#include <boost/utility/string_ref.hpp>
 
 struct InputSrc;
 using InputSrcPtr = std::shared_ptr<InputSrc>;
@@ -31,6 +30,8 @@ struct Span
 
     inline bool invalid () const
     { return !input || len == 0; }
+
+    Span operator+ (const Span& union_with) const;
 };
 
 struct InputSrc
@@ -66,6 +67,9 @@ struct InputSrc
         return take_while(std::move(pred), sp);
     }
 
+    void span_here (Span& span_out, size_t len = 1);
+
+    std::string get_line (tpos bol);
 
 private:
     void fill_buffer_ ();

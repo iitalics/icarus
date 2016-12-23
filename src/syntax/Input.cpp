@@ -58,10 +58,7 @@ rune InputSrc::take ()
 std::string InputSrc::take_while (std::function<bool(rune)> pred,
                                   Span& span_out)
 {
-    span_out.pos = pos_;
-    span_out.len = 0;
-    span_out.line = line_;
-    span_out.bol = bol_;
+    span_here(span_out, 0);
 
     std::string str;
     for (; !eof && pred(head); take()) {
@@ -81,4 +78,21 @@ void InputSrc::fill_buffer_ ()
         else
             buffer_.push_back(c);
     }
+}
+
+void InputSrc::span_here (Span& span_out, size_t len)
+{
+    span_out.pos = pos_;
+    span_out.len = len;
+    span_out.line = line_;
+    span_out.bol = bol_;
+}
+
+std::string InputSrc::get_line (tpos bol)
+{
+    std::string line;
+    stream->seekg(bol, std::istream::beg);
+    std::getline(*stream, line);
+    stream->seekg(pos_, std::istream::beg);
+    return line;
 }
