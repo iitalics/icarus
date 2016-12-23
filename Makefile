@@ -24,6 +24,10 @@ deps=$(srcs:src/%=obj/%.dep)
 .PHONY: all
 all: $(out)
 
+.PHONY: run
+run: $(out)
+	$(out)
+
 # make dirs
 obj:
 	@mkdir -p obj $(obj_dirs)

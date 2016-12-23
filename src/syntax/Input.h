@@ -60,6 +60,13 @@ struct InputSrc
     std::string take_while (std::function<bool(rune)> pred,
                             Span& span_out);
 
+    inline std::string take_while (std::function<bool(rune)> pred)
+    {
+        Span sp;
+        return take_while(std::move(pred), sp);
+    }
+
+
 private:
     void fill_buffer_ ();
     std::string buffer_;

@@ -7,12 +7,12 @@ int main (void)
 {
     auto inp = InputSrc::ptr_from_input("Hello \xe2\x9e\xaf world!");
 
-    std::string chr;
-    for (; !inp->eof; inp->take()) {
-        chr.clear();
-        utf8::append(inp->head, std::back_inserter(chr));
-        std::cout << boost::format("-> %s (charpoint = %x)\n") % chr % inp->head;
-    }
+    while (!inp->eof) {
+        auto word = inp->take_while([] (rune rn) { return rn != ' '; });
+        std::cout << "word: `" << word << "'" << std::endl;
 
+        inp->take_while([] (rune rn) { return rn == ' '; });
+    }
+    std::cout << "done" << std::endl;
     return 0;
 }

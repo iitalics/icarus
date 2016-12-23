@@ -64,7 +64,7 @@ std::string InputSrc::take_while (std::function<bool(rune)> pred,
     span_out.bol = bol_;
 
     std::string str;
-    for (; pred(head); take()) {
+    for (; !eof && pred(head); take()) {
         utf8::append(head, std::back_inserter(str));
         span_out.len++;
     }
