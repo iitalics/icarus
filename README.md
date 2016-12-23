@@ -4,7 +4,7 @@ simple language interpreter for experimentation
 ## TODO
 
 - [ ] AST
-  - [ ] Definitions
+  - [x] Definitions
   - [ ] Lexer
   - [ ] Parser
 
