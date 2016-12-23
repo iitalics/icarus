@@ -76,5 +76,18 @@ void FieldExpr::traverse (std::function<void(Expr*)> f) const
     expr->traverse(f);
 }
 
+DataTypeExpr::~DataTypeExpr () {}
+
+NewExpr::~NewExpr () {}
+void NewExpr::traverse (std::function<void(Expr*)> f) const
+{
+    f(type.get());
+    type->traverse(f);
+    for (auto& expr : args) {
+        f(expr.get());
+        expr->traverse(f);
+    }
+}
+
 
 }

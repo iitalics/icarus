@@ -36,6 +36,9 @@ draw_box("Hello, world!")
 ;; create a datatype for boxed text
 ;;
 let boxed% = datatype(text)
+fn boxed (text)
+  new boxed%(text)
+end
 
 ;;
 ;; create a method for print()ing these objects
@@ -43,4 +46,4 @@ let boxed% = datatype(text)
 fn print (b is boxed%)
   draw_box(b.text)
 end
-print(boxed%("Hello, objects!"))
+print(boxed("Hello, objects!"))

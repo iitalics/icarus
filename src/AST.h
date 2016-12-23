@@ -24,6 +24,7 @@ Expr ::=
   If(expr, body1, body2)
   Field(e, key)
   DataType(keys)
+  New(type_expr, args)
 */
 
 struct Stmt;
@@ -32,6 +33,7 @@ struct Expr;
 using ExprPtr = std::unique_ptr<Expr>;
 
 using VarName = std::string;
+using KeyName = std::string;
 using FnName = std::string;
 
 /*
@@ -73,7 +75,7 @@ struct SetVarStmt : public Stmt
 /* <expr>.<key> = <value> */
 struct SetFieldStmt : public Stmt
 {
-    inline SetFieldStmt (ExprPtr e1, VarName k, ExprPtr e2)
+    inline SetFieldStmt (ExprPtr e1, KeyName k, ExprPtr e2)
         : expr(std::move(e1))
         , to(std::move(e2))
         , key(std::move(k))
@@ -81,7 +83,7 @@ struct SetFieldStmt : public Stmt
     virtual ~SetFieldStmt ();
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr expr, to;
-    VarName key;
+    KeyName key;
 };
 
 /* loop ... end */
@@ -142,7 +144,7 @@ struct VarExpr : public Expr
     VarName var_name;
 };
 
-/* <fn>(<expr>, ...) */
+/* <fn>(<expr>, ..) */
 struct AppExpr : public Expr
 {
     inline AppExpr (FnName fn, std::vector<ExprPtr> es)
@@ -175,14 +177,37 @@ struct IfExpr : public Expr
 /* <expr>.<key> */
 struct FieldExpr : public Expr
 {
-    inline FieldExpr (ExprPtr e, VarName k)
+    inline FieldExpr (ExprPtr e, KeyName k)
         : expr(std::move(e))
         , key(std::move(k))
     {}
     virtual ~FieldExpr ();
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr expr;
-    std::string key;
+    KeyName key;
+};
+
+/* datatype(...) */
+struct DataTypeExpr : public Expr
+{
+    inline DataTypeExpr (std::vector<KeyName> ks)
+        : keys(std::move(ks))
+    {}
+    virtual ~DataTypeExpr ();
+    std::vector<KeyName> keys;
+};
+
+/* new <expr>(<expr>, ..) */
+struct NewExpr : public Expr
+{
+    inline NewExpr (ExprPtr t, std::vector<ExprPtr> es)
+        : type(std::move(t))
+        , args(std::move(es))
+    {}
+    virtual ~NewExpr ();
+    virtual void traverse (std::function<void(Expr*)> f) const;
+    ExprPtr type;
+    std::vector<ExprPtr> args;
 };
 
 
