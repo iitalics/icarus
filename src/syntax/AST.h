@@ -3,7 +3,7 @@
 #include <memory>
 #include <functional>
 #include <vector>
-#include "datatypes.h"
+#include "../datatypes.h"
 
 namespace ast
 {
