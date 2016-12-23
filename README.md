@@ -3,17 +3,17 @@ simple language interpreter for experimentation
 
 ## TODO
 
-    - [ ] AST
-      - [ ] Definitions
-      - [ ] Lexer
-      - [ ] Parser
+- [ ] AST
+  - [ ] Definitions
+  - [ ] Lexer
+  - [ ] Parser
 
-    - [ ] Runtime
-      - [ ] Definitions
-      - [ ] Garbage collector
+- [ ] Runtime
+  - [ ] Definitions
+  - [ ] Garbage collector
 
-    - [ ] Bytecode
-      - [ ] Definitions
-      - [ ] Interpreter
-      - [ ] Compiler
-      - [ ] JIT
+- [ ] Bytecode
+  - [ ] Definitions
+  - [ ] Interpreter
+  - [ ] Compiler
+  - [ ] JIT
