@@ -1,0 +1,38 @@
+;; compute the n'th fibonacci number
+fn fibonacci (n)
+  let a = 0
+  let b = 1
+  for i = 0
+    until (i == n)
+    let c = b
+    b = a + b
+    a = c
+    i = i + 1
+  end
+  a
+end
+print_line("the 12'th fibonacci number is: " + str(fibonacci(12)))
+
+;; draw a box on the screen with some text
+fn draw_box (text)
+  let top = "+-"
+  for i = 0
+    until i >= len(text)
+    top = top + "-"
+    i = i + 1
+  end
+  top = top + "-+"
+  print_line(top)
+  print_line("| " + text + " |")
+  print_line(top)
+end
+draw_box("Hello, world!")
+
+;; create a datatype for boxed text
+let boxed% = datatype(text)
+
+;; create a method for print()ing these objects
+fn print (b is boxed%)
+  draw_box(b.text)
+end
+print(boxed%("Hello, objects!"))
