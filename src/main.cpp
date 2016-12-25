@@ -8,7 +8,7 @@ int main (void)
 {
     auto inp = InputSrc::ptr_from_input
         ("rect% = datatype(width,height)\n"
-         "fn perim (r : rect%)\n"
+         "fn perim (r is rect%)\n"
          "  2 * r.width + 2 * r.height\n"
          "end",
          "<example>");

@@ -13,7 +13,6 @@ fn fibonacci (n)
   end
   a
 end
-print_line("the 12'th fibonacci number is: " + str(fibonacci(12)))
 
 ;;
 ;; draw a box on the screen with some text
@@ -30,20 +29,18 @@ fn draw_box (text)
   print_line("| " + text + " |")
   print_line(top)
 end
-draw_box("Hello, world!")
 
 ;;
 ;; create a datatype for boxed text
 ;;
-let boxed% = datatype(text)
-fn boxed (text)
-  new boxed%(text)
-end
-
-;;
-;; create a method for print()ing these objects
-;;
+boxed% = datatype(text)
 fn print (b is boxed%)
   draw_box(b.text)
 end
-print(boxed("Hello, objects!"))
+
+
+fn main ()
+  print_line("the 12'th fibonacci number is: " + str(fibonacci(12)))
+  draw_box("Hello, world!")
+  print(boxed("Hello, objects!"))
+end
