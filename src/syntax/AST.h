@@ -4,11 +4,16 @@
 #include <functional>
 #include <vector>
 #include "../datatypes.h"
+#include "Span.h"
 
 namespace ast
 {
 
 /*
+Defn ::=
+  Global(x, expr)
+  Function(fn_name, args, body)
+
 Stmt ::=
   Let(x, expr)
   SetVar(x, expr)
@@ -28,13 +33,66 @@ Expr ::=
 */
 
 struct Stmt;
-using StmtPtr = std::unique_ptr<Stmt>;
 struct Expr;
+struct Defn;
+using StmtPtr = std::unique_ptr<Stmt>;
 using ExprPtr = std::unique_ptr<Expr>;
+using DefnPtr = std::unique_ptr<Defn>;
 
 using VarName = std::string;
 using KeyName = std::string;
 using FnName = std::string;
+
+using BodyStmts = std::vector<StmtPtr>;
+
+
+
+/*
+ * Definitions
+ */
+struct Defn
+{
+    inline Defn (Span sp)
+        : span(std::move(sp))
+    {}
+    virtual ~Defn () = 0;
+
+    Span span;
+};
+
+/* <global> = <expr> */
+struct GlobalDefn : public Defn
+{
+    GlobalDefn (Span span, VarName n, ExprPtr e)
+        : Defn(std::move(span))
+        , name(std::move(n))
+        , expr(std::move(e))
+    {}
+    virtual ~GlobalDefn ();
+
+    VarName name;
+    ExprPtr expr;
+};
+
+/* fn f (x, ..) ... end */
+struct FunctionDefn : public Defn
+{
+    FunctionDefn (Span span, FnName fn,
+                  std::vector<VarName> args,
+                  BodyStmts b)
+        : Defn(std::move(span))
+        , name(std::move(fn))
+        , arg_names(std::move(args))
+        , body(std::move(b))
+    {}
+    virtual ~FunctionDefn ();
+
+    FnName name;
+    std::vector<VarName> arg_names;
+    BodyStmts body;
+};
+
+
 
 /*
  * Statements
@@ -89,12 +147,12 @@ struct SetFieldStmt : public Stmt
 /* loop ... end */
 struct LoopStmt : public Stmt
 {
-    inline LoopStmt (std::vector<StmtPtr> s)
-        : body(std::move(s))
+    inline LoopStmt (BodyStmts b)
+        : body(std::move(b))
     {}
     virtual ~LoopStmt ();
     virtual void traverse (std::function<void(Expr*)> f) const;
-    std::vector<StmtPtr> body;
+    BodyStmts body;
 };
 
 /* break */
@@ -103,6 +161,7 @@ struct BreakStmt : public Stmt
     inline BreakStmt () {}
     virtual ~BreakStmt ();
 };
+
 
 
 /*
@@ -161,8 +220,8 @@ struct AppExpr : public Expr
 struct IfExpr : public Expr
 {
     inline IfExpr (ExprPtr e,
-                   std::vector<StmtPtr> body1,
-                   std::vector<StmtPtr> body2)
+                   BodyStmts body1,
+                   BodyStmts body2)
         : cond(std::move(e))
         , then_body(std::move(body1))
         , else_body(std::move(body2))
@@ -170,8 +229,8 @@ struct IfExpr : public Expr
     virtual ~IfExpr ();
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr cond;
-    std::vector<StmtPtr> then_body;
-    std::vector<StmtPtr> else_body;
+    BodyStmts then_body;
+    BodyStmts else_body;
 };
 
 /* <expr>.<key> */

@@ -2,6 +2,15 @@
 
 namespace ast {
 
+Defn::~Defn () {}
+
+GlobalDefn::~GlobalDefn () {}
+
+FunctionDefn::~FunctionDefn () {}
+
+
+
+
 Stmt::~Stmt () {}
 void Stmt::traverse (std::function<void(Expr*)> f) const { (void) f; }
 
