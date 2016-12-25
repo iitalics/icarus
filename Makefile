@@ -32,6 +32,8 @@ run: $(out)
 obj:
 	@mkdir -p obj $(obj_dirs)
 
+-include $(wildcard obj/*.dep)
+
 # compile objects
 obj/%.cpp.o: src/%.cpp
 	@echo CXX $@
@@ -42,8 +44,6 @@ obj/%.c.o: src/%.c
 	@echo CC $@
 	@$(cc) $< -c -o $@
 	@$(cc) $< -c -MM -MT $@ -o $(@:%.o=%.dep)
-
--include $(wildcard obj/*.dep)
 
 # link executable
 $(out): obj $(objs)
