@@ -5,6 +5,18 @@
 
 namespace lex {
 
+namespace runes {
+
+extern char char_class[128];
+inline bool is_whitespace (rune rn)
+{ return rn < 128 && (char_class[rn] & 1); }
+inline bool is_numeric (rune rn)
+{ return rn < 128 && (char_class[rn] & 2); }
+inline bool is_delimeter (rune rn)
+{ return rn < 128 && (char_class[rn] & 4); }
+
+}
+
 struct Lex
 {
     inline Lex (InputSrcPtr isrc)
