@@ -2,19 +2,14 @@
 #include <utf8.h>
 #include <boost/format.hpp>
 #include "syntax/Input.h"
-#include "syntax/Token.h"
+#include "syntax/Lex.h"
 
 int main (void)
 {
     auto inp = InputSrc::ptr_from_input("Hello \xe2\x9e\xaf world!");
 
-    Span span(inp);
-    inp->span_here(span);
-
-    lex::Token tok1('(', span);
-    lex::Token tok2('[', span);
-
-    std::cout << boost::format("expected %s, got %s\n") % tok1 % tok2;
+    lex::Lex lexer(inp);
+    std::cout << lexer.take1() << std::endl;
 
     return 0;
 }
