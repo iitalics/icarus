@@ -29,10 +29,9 @@ DefnPtr parse_defn (Lex& lx)
         auto arg_names = parse_arg_names(lx);
         auto stmts = parse_stmts(lx);
         lx.eat(T::KW_end);
-        auto fn_defn = new FunctionDefn
+        return DefnPtr(new FunctionDefn
             (std::move(span), std::move(fn_name),
-             std::move(arg_names), std::move(stmts));
-        return DefnPtr(fn_defn);
+             std::move(arg_names), std::move(stmts)));
     }
 
     // global definition:
@@ -42,10 +41,9 @@ DefnPtr parse_defn (Lex& lx)
         auto glob_name = lx.take1().string_val;
         lx.take1();
         auto init_expr = parse_expr(lx);
-        auto glob_defn = new GlobalDefn
+        return DefnPtr(new GlobalDefn
             (std::move(span), std::move(glob_name),
-             std::move(init_expr));
-        return DefnPtr(glob_defn);
+             std::move(init_expr)));
     }
 
     throw span_error(span, "invalid toplevel definition");
@@ -91,7 +89,7 @@ BodyStmts parse_stmts (Lex& lx)
 {
     std::vector<StmtPtr> stmts;
     for (;;) {
-        auto hd = lx.at(0).kind;
+        const auto hd = lx.at(0).kind;
         if (hd == T::KW_end
             || hd == T::KW_else
             || hd == T::KW_elseif
