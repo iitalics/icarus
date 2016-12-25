@@ -37,6 +37,17 @@ struct Lex
     Token take1 ();
     void take (size_t n);
 
+    // error if at(i) != kind
+    void expect (Token::Kind kind, size_t i = 0);
+    // error, say "expected XYZ, got ..."
+    [[noreturn]] void expect (const std::string& err_thing, size_t i = 0);
+    // error if at(0) != kind, then take1()
+    inline Token eat (Token::Kind kind)
+    {
+        expect(kind, 0);
+        return take1();
+    }
+
 private:
     std::deque<Token> buffer_;
 

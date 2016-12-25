@@ -34,6 +34,22 @@ void Lex::take (size_t n)
     }
 }
 
+void Lex::expect (Token::Kind kind, size_t i)
+{
+    if (at(i) != kind) {
+        auto fmt = boost::format
+            ("expected %s, got %s") % kind % at(i);
+        throw span_error(at(i).span, fmt.str());
+    }
+}
+
+[[noreturn]] void Lex::expect (const std::string& err_thing, size_t i)
+{
+    auto fmt = boost::format
+        ("expected %s, got %s") % err_thing % at(i);
+    throw span_error(at(i).span, fmt.str());
+}
+
 
 
 

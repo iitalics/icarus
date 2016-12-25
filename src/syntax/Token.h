@@ -68,5 +68,12 @@ OutStream& operator<< (OutStream& os, const Token& tok)
     return os;
 }
 
+template <typename OutStream>
+OutStream& operator<< (OutStream& os, const Token::Kind& tok)
+{
+    Token::write(os, tok);
+    return os;
+}
+
 
 }

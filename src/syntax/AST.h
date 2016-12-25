@@ -20,6 +20,7 @@ Stmt ::=
   SetField(expr, key, expr)
   Loop(body)
   Break()
+  Value(e)
 
 Expr ::=
   IntLiteral(n)
@@ -56,37 +57,34 @@ struct Defn
         : span(std::move(sp))
     {}
     virtual ~Defn () = 0;
-
     Span span;
 };
 
 /* <global> = <expr> */
 struct GlobalDefn : public Defn
 {
-    GlobalDefn (Span span, VarName n, ExprPtr e)
+    inline GlobalDefn (Span span, VarName n, ExprPtr e)
         : Defn(std::move(span))
         , name(std::move(n))
-        , expr(std::move(e))
+        , init_expr(std::move(e))
     {}
     virtual ~GlobalDefn ();
-
     VarName name;
-    ExprPtr expr;
+    ExprPtr init_expr;
 };
 
 /* fn f (x, ..) ... end */
 struct FunctionDefn : public Defn
 {
-    FunctionDefn (Span span, FnName fn,
-                  std::vector<VarName> args,
-                  BodyStmts b)
+    inline FunctionDefn (Span span, FnName fn,
+                         std::vector<VarName> args,
+                         BodyStmts b)
         : Defn(std::move(span))
         , name(std::move(fn))
         , arg_names(std::move(args))
         , body(std::move(b))
     {}
     virtual ~FunctionDefn ();
-
     FnName name;
     std::vector<VarName> arg_names;
     BodyStmts body;
@@ -99,15 +97,20 @@ struct FunctionDefn : public Defn
  */
 struct Stmt
 {
+    Stmt (Span sp)
+        : span(std::move(sp))
+    {}
     virtual ~Stmt () = 0;
     virtual void traverse (std::function<void(Expr*)> f) const;
+    Span span;
 };
 
 /* let <var> = <value> */
 struct LetStmt : public Stmt
 {
-    inline LetStmt (VarName name, ExprPtr e)
-        : var_name(std::move(name))
+    inline LetStmt (Span span, VarName name, ExprPtr e)
+        : Stmt(std::move(span))
+        , var_name(std::move(name))
         , init(std::move(e))
     {}
     virtual ~LetStmt ();
@@ -119,8 +122,9 @@ struct LetStmt : public Stmt
 /* <var> = <value> */
 struct SetVarStmt : public Stmt
 {
-    inline SetVarStmt (VarName name, ExprPtr e)
-        : var_name(std::move(name))
+    inline SetVarStmt (Span span, VarName name, ExprPtr e)
+        : Stmt(std::move(span))
+        , var_name(std::move(name))
         , to(std::move(e))
     {}
     virtual ~SetVarStmt ();
@@ -133,8 +137,9 @@ struct SetVarStmt : public Stmt
 /* <expr>.<key> = <value> */
 struct SetFieldStmt : public Stmt
 {
-    inline SetFieldStmt (ExprPtr e1, KeyName k, ExprPtr e2)
-        : expr(std::move(e1))
+    inline SetFieldStmt (Span span, ExprPtr e1, KeyName k, ExprPtr e2)
+        : Stmt(std::move(span))
+        , expr(std::move(e1))
         , to(std::move(e2))
         , key(std::move(k))
     {}
@@ -147,8 +152,9 @@ struct SetFieldStmt : public Stmt
 /* loop ... end */
 struct LoopStmt : public Stmt
 {
-    inline LoopStmt (BodyStmts b)
-        : body(std::move(b))
+    inline LoopStmt (Span span, BodyStmts b)
+        : Stmt(std::move(span))
+        , body(std::move(b))
     {}
     virtual ~LoopStmt ();
     virtual void traverse (std::function<void(Expr*)> f) const;
@@ -158,8 +164,22 @@ struct LoopStmt : public Stmt
 /* break */
 struct BreakStmt : public Stmt
 {
-    inline BreakStmt () {}
+    inline BreakStmt (Span span)
+        : Stmt(std::move(span))
+    {}
     virtual ~BreakStmt ();
+};
+
+/* <expr> */
+struct ValueStmt : public Stmt
+{
+    inline ValueStmt (Span span, ExprPtr e)
+        : Stmt(std::move(span))
+        , expr(std::move(e))
+    {}
+    virtual ~ValueStmt ();
+    virtual void traverse (std::function<void(Expr*)> f) const;
+    ExprPtr expr;
 };
 
 
@@ -169,15 +189,20 @@ struct BreakStmt : public Stmt
  */
 struct Expr
 {
+    inline Expr (Span sp)
+        : span(std::move(sp))
+    {}
     virtual ~Expr () = 0;
     virtual void traverse (std::function<void(Expr*)> f) const;
+    Span span;
 };
 
 /* 1234 */
 struct IntExpr : public Expr
 {
-    inline IntExpr (Fixnum fx)
-        : val(fx)
+    inline IntExpr (Span span, Fixnum fx)
+        : Expr(std::move(span))
+        , val(fx)
     {}
     virtual ~IntExpr ();
     Fixnum val;
@@ -186,8 +211,9 @@ struct IntExpr : public Expr
 /* "abcdef" */
 struct StringExpr : public Expr
 {
-    inline StringExpr (std::string s)
-        : val(s)
+    inline StringExpr (Span span, std::string s)
+        : Expr(std::move(span))
+        , val(s)
     {}
     virtual ~StringExpr ();
     std::string val;
@@ -196,8 +222,9 @@ struct StringExpr : public Expr
 /* <var> */
 struct VarExpr : public Expr
 {
-    inline VarExpr (VarName n)
-        : var_name(std::move(n))
+    inline VarExpr (Span span, VarName n)
+        : Expr(std::move(span))
+        , var_name(std::move(n))
     {}
     virtual ~VarExpr ();
     VarName var_name;
@@ -206,8 +233,9 @@ struct VarExpr : public Expr
 /* <fn>(<expr>, ..) */
 struct AppExpr : public Expr
 {
-    inline AppExpr (FnName fn, std::vector<ExprPtr> es)
-        : fn_name(std::move(fn))
+    inline AppExpr (Span span, FnName fn, std::vector<ExprPtr> es)
+        : Expr(std::move(span))
+        , fn_name(std::move(fn))
         , args(std::move(es))
     {}
     virtual ~AppExpr ();
@@ -219,10 +247,11 @@ struct AppExpr : public Expr
 /* if <expr> then ... else ... end */
 struct IfExpr : public Expr
 {
-    inline IfExpr (ExprPtr e,
+    inline IfExpr (Span span, ExprPtr e,
                    BodyStmts body1,
                    BodyStmts body2)
-        : cond(std::move(e))
+        : Expr(std::move(span))
+        , cond(std::move(e))
         , then_body(std::move(body1))
         , else_body(std::move(body2))
     {}
@@ -236,8 +265,9 @@ struct IfExpr : public Expr
 /* <expr>.<key> */
 struct FieldExpr : public Expr
 {
-    inline FieldExpr (ExprPtr e, KeyName k)
-        : expr(std::move(e))
+    inline FieldExpr (Span span, ExprPtr e, KeyName k)
+        : Expr(std::move(span))
+        , expr(std::move(e))
         , key(std::move(k))
     {}
     virtual ~FieldExpr ();
@@ -249,8 +279,9 @@ struct FieldExpr : public Expr
 /* datatype(...) */
 struct DataTypeExpr : public Expr
 {
-    inline DataTypeExpr (std::vector<KeyName> ks)
-        : keys(std::move(ks))
+    inline DataTypeExpr (Span span, std::vector<KeyName> ks)
+        : Expr(std::move(span))
+        , keys(std::move(ks))
     {}
     virtual ~DataTypeExpr ();
     std::vector<KeyName> keys;
@@ -259,8 +290,9 @@ struct DataTypeExpr : public Expr
 /* new <expr>(<expr>, ..) */
 struct NewExpr : public Expr
 {
-    inline NewExpr (ExprPtr t, std::vector<ExprPtr> es)
-        : type(std::move(t))
+    inline NewExpr (Span span, ExprPtr t, std::vector<ExprPtr> es)
+        : Expr(std::move(span))
+        , type(std::move(t))
         , args(std::move(es))
     {}
     virtual ~NewExpr ();

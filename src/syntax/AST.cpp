@@ -46,6 +46,13 @@ void LoopStmt::traverse (std::function<void(Expr*)> f) const
 
 BreakStmt::~BreakStmt () {}
 
+ValueStmt::~ValueStmt () {}
+void ValueStmt::traverse (std::function<void(Expr*)> f) const
+{
+    f(expr.get());
+    expr->traverse(f);
+}
+
 
 
 
