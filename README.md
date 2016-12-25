@@ -5,7 +5,7 @@ simple language interpreter for experimentation
 
 - [ ] AST
   - [x] Definitions
-  - [ ] Lexer
+  - [x] Lexer
   - [ ] Parser
 
 - [ ] Runtime
