@@ -105,11 +105,23 @@ BodyStmts parse_stmts (Lex& lx)
 
 ExprPtr parse_expr (Lex& lx)
 {
+    if (lx.at(0) == T::KW_if) {
+        auto span = lx.take1().span;
+        auto cond = parse_expr(lx);
+        lx.eat(T::KW_then);
+        auto then_stmts = parse_stmts(lx);
+        auto else_stmts = parse_else(lx);
+        return ExprPtr(new IfExpr
+                       (std::move(span), std::move(cond),
+                        std::move(then_stmts), std::move(else_stmts)));
+    }
+    // TODO: infix operators
     return parse_term(lx);
 }
 
 ExprPtr parse_term (Lex& lx)
 {
+    // TODO: infix operators
     return parse_factor(lx);
 }
 
@@ -165,6 +177,48 @@ bool parse_factor_suffix (Lex& lx, ExprPtr& expr)
 {
     (void) lx; (void) expr;
     return false;
+}
+
+BodyStmts parse_else (Lex& lx)
+{
+    switch (lx.at(0).kind) {
+    case T::KW_else:
+        {
+            lx.take1();
+            auto stmts = parse_stmts(lx);
+            lx.eat(T::KW_end);
+            return stmts;
+        }
+
+    case T::KW_elseif:
+        {
+            auto span = lx.take1().span;
+            auto cond = parse_expr(lx);
+            lx.eat(T::KW_then);
+            auto then_stmts = parse_stmts(lx);
+            auto else_stmts = parse_else(lx);
+            // elseif A else B end
+            // eqv. to
+            // else if A else B end end
+            auto if_expr =
+                ExprPtr(new IfExpr(span, std::move(cond),
+                                   std::move(then_stmts), std::move(else_stmts)));
+            auto val_stmt =
+                StmtPtr(new ValueStmt(span, std::move(if_expr)));
+            BodyStmts stmts;
+            stmts.push_back(std::move(val_stmt));
+            return stmts;
+        }
+
+    case T::KW_end:
+        {
+            lx.take1();
+            return BodyStmts {};
+        }
+
+    default:
+        lx.expect("`else', `elseif` or `end'");
+    }
 }
 
 

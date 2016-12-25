@@ -101,6 +101,7 @@ struct Stmt
         : span(std::move(sp))
     {}
     virtual ~Stmt () = 0;
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     Span span;
 };
@@ -178,6 +179,7 @@ struct ValueStmt : public Stmt
         , expr(std::move(e))
     {}
     virtual ~ValueStmt ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr expr;
 };
@@ -193,9 +195,19 @@ struct Expr
         : span(std::move(sp))
     {}
     virtual ~Expr () = 0;
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     Span span;
+
+    std::string to_str ();
 };
+
+template <typename OutStream>
+OutStream& operator<< (OutStream& os, const ExprPtr& expr)
+{
+    expr->write(os);
+    return os;
+}
 
 /* 1234 */
 struct IntExpr : public Expr
@@ -205,6 +217,7 @@ struct IntExpr : public Expr
         , val(fx)
     {}
     virtual ~IntExpr ();
+    virtual void write (std::ostream& os);
     Fixnum val;
 };
 
@@ -216,6 +229,7 @@ struct StringExpr : public Expr
         , val(s)
     {}
     virtual ~StringExpr ();
+    virtual void write (std::ostream& os);
     std::string val;
 };
 
@@ -227,6 +241,7 @@ struct VarExpr : public Expr
         , var_name(std::move(n))
     {}
     virtual ~VarExpr ();
+    virtual void write (std::ostream& os);
     VarName var_name;
 };
 
@@ -239,6 +254,7 @@ struct AppExpr : public Expr
         , args(std::move(es))
     {}
     virtual ~AppExpr ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     FnName fn_name;
     std::vector<ExprPtr> args;
@@ -256,6 +272,7 @@ struct IfExpr : public Expr
         , else_body(std::move(body2))
     {}
     virtual ~IfExpr ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr cond;
     BodyStmts then_body;
@@ -271,6 +288,7 @@ struct FieldExpr : public Expr
         , key(std::move(k))
     {}
     virtual ~FieldExpr ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr expr;
     KeyName key;
@@ -284,6 +302,7 @@ struct DataTypeExpr : public Expr
         , keys(std::move(ks))
     {}
     virtual ~DataTypeExpr ();
+    virtual void write (std::ostream& os);
     std::vector<KeyName> keys;
 };
 
@@ -296,6 +315,7 @@ struct NewExpr : public Expr
         , args(std::move(es))
     {}
     virtual ~NewExpr ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr type;
     std::vector<ExprPtr> args;
