@@ -14,7 +14,10 @@ struct Span
 {
     explicit Span (InputSrcPtr in = nullptr)
         : input(in)
-        , pos(0), len(0), line(0)
+        , line(0)
+        , col(0)
+        , len(0)
+        , bol(0)
     {}
 
     InputSrcPtr input;
@@ -23,10 +26,10 @@ struct Span
     //   `pos' and `bol' are byte position in stream
     //   `len' is in >characters<, not bytes
     //   `line' is line #, starting with 0 for first line
-    tpos pos, len, line, bol;
+    tpos line, col, len, bol;
 
-    inline bool invalid () const
-    { return !input || len == 0; }
-
+    inline operator bool () const { return len > 0; }
     Span operator+ (const Span& union_with) const;
 };
+
+std::runtime_error span_error (Span sp, const std::string& msg);

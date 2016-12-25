@@ -39,17 +39,19 @@ rune InputSrc::take ()
         head = '\0';
     }
     else {
-        /* read the first rune out of  buffer_ */
+        /* read the next rune out of buffer_ */
         auto buf_pos = buffer_.begin();
         head = utf8::next(buf_pos, buffer_.end());
-        /* erase from buffer_ */
+        /* erase this rune from buffer_ */
         auto cpw = buf_pos - buffer_.begin();
         buffer_.erase(buffer_.begin(), buf_pos);
-        /* advance pos_, bol_, and line_ */
-        pos_ += cpw;
+        /* advance pos_, line_ & col_ */
+        pos_ += cpw; // pos_ is position directly following 'head'
+        col_++;
         if (old == '\n') {
-            bol_ = pos_;
             line_++;
+            col_ = 0;
+            bol_ = pos_ - cpw;
         }
     }
     return old;
@@ -82,17 +84,29 @@ void InputSrc::fill_buffer_ ()
 
 void InputSrc::span_here (Span& span_out, size_t len)
 {
-    span_out.pos = pos_;
-    span_out.len = len;
     span_out.line = line_;
+    span_out.col = col_;
+    span_out.len = len;
     span_out.bol = bol_;
 }
 
 std::string InputSrc::get_line (tpos bol)
 {
+    auto old_pos = stream->tellg();
     std::string line;
     stream->seekg(bol, std::istream::beg);
     std::getline(*stream, line);
-    stream->seekg(pos_, std::istream::beg);
+    stream->seekg(old_pos, std::istream::beg);
     return line;
+}
+
+
+std::runtime_error span_error (Span span, const std::string& msg)
+{
+    auto fmt = boost::format("%s:%d:%d: %s")
+        % span.input->filename
+        % (span.line + 1)
+        % (span.col + 1)
+        % msg;
+    return std::runtime_error(fmt.str());
 }

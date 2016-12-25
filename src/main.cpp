@@ -6,10 +6,32 @@
 
 int main (void)
 {
-    auto inp = InputSrc::ptr_from_input("Hello \xe2\x9e\xaf world!");
+    auto inp = InputSrc::ptr_from_input
+        ("rect% = datatype(width,height)\n"
+         "fn perim (r : rect%)\n"
+         "  2 * r.width + 2 * r.height\n"
+         "end",
+         "<example>");
 
-    lex::Lex lexer(inp);
-    std::cout << lexer.take1() << std::endl;
+    try {
+        lex::Lex lexer(inp);
+        for (int i = 0; ; i++) {
+            const auto tok = lexer.take1();
+            std::cout << boost::format("%2d) %10s  span: %s, line %d, col %d-%d\n")
+                % (i + 1) % tok
+                % tok.span.input->filename
+                % (tok.span.line + 1)
+                % (tok.span.col + 1)
+                % (tok.span.col + tok.span.len);
+
+            if (tok == lex::Token::EndOfFile)
+                break;
+        }
+    }
+    catch (std::runtime_error& err) {
+        std::cerr << "error:" << std::endl
+                  << err.what() << std::endl;
+    }
 
     return 0;
 }

@@ -11,9 +11,13 @@ struct InputSrc
         : filename(std::move(fn))
         , stream(new InputStream(std::move(is)))
         , eof(false)
-        , pos_(0), bol_(0), line_(0)
+        , head('\0')
+        , pos_(0)
+        , line_(0)
+        , bol_(0)
     {
         take();
+        col_ = 0;
     }
 
     static InputSrcPtr ptr_from_file (std::string filename,
@@ -45,5 +49,6 @@ private:
     void fill_buffer_ ();
     std::string buffer_;
 
-    tpos pos_, bol_, line_;
+    std::istream::pos_type pos_;
+    tpos line_, col_, bol_;
 };
