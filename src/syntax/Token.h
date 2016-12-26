@@ -24,6 +24,8 @@ struct Token
         KW_else,
         KW_elseif,
         KW_let,
+        KW_loop,
+        KW_break,
         KW_fn,
         KW_datatype,
         KW_new,

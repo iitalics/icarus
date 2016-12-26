@@ -107,6 +107,8 @@ std::unordered_map<std::string, Token::Kind> keywords =
         {"else", Token::KW_else},
         {"elseif", Token::KW_elseif},
         {"let", Token::KW_let},
+        {"loop", Token::KW_loop},
+        {"break", Token::KW_break},
         {"fn", Token::KW_fn},
         {"datatype", Token::KW_datatype},
         {"new", Token::KW_new},

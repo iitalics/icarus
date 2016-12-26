@@ -29,6 +29,8 @@ void Token::write (std::ostream& os, Kind kind)
     case KW_else:     os << "`else'"; break;
     case KW_elseif:   os << "`elseif'"; break;
     case KW_let:      os << "`let'"; break;
+    case KW_loop:     os << "`loop'"; break;
+    case KW_break:    os << "`break'"; break;
     case KW_fn:       os << "`fn'"; break;
     case KW_datatype: os << "`datatype'"; break;
     case KW_new:      os << "`new'"; break;
