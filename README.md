@@ -3,10 +3,10 @@ simple language interpreter for experimentation
 
 ## TODO
 
-- [ ] AST
+- [x] AST
   - [x] Definitions
   - [x] Lexer
-  - [ ] Parser
+  - [x] Parser
 
 - [ ] Runtime
   - [ ] Definitions

@@ -9,14 +9,21 @@
 int main (void)
 {
     auto inp = InputSrc::ptr_from_input
-        ("if x then a elseif y then b else c end",
+        ("loop"                "\n"
+         "  if i > 10 then"    "\n"
+         "    break"           "\n"
+         "  end"               "\n"
+         "  i = i + 1"         "\n"
+         "  arr.at(i) = i * 5" "\n"
+         "end"                 "\n"
+         "",
          "<example>");
 
     try {
 
         lex::Lex lx(inp);
-        auto expr = parse::parse_expr(lx);
-        std::cout << "Parsed: " << expr << std::endl;
+        auto stmt = parse::parse_stmt(lx);
+        std::cout << "Parsed: " << stmt << std::endl;
         lx.expect(lex::Token::EndOfFile);
     }
     catch (std::runtime_error& err) {

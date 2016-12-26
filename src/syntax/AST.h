@@ -115,6 +115,7 @@ struct LetStmt : public Stmt
         , init(std::move(e))
     {}
     virtual ~LetStmt ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     VarName var_name;
     ExprPtr init;
@@ -129,6 +130,7 @@ struct SetVarStmt : public Stmt
         , to(std::move(e))
     {}
     virtual ~SetVarStmt ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
 
     VarName var_name;
@@ -145,6 +147,7 @@ struct SetFieldStmt : public Stmt
         , key(std::move(k))
     {}
     virtual ~SetFieldStmt ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     ExprPtr expr, to;
     KeyName key;
@@ -158,6 +161,7 @@ struct LoopStmt : public Stmt
         , body(std::move(b))
     {}
     virtual ~LoopStmt ();
+    virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
     BodyStmts body;
 };
@@ -168,6 +172,7 @@ struct BreakStmt : public Stmt
     inline BreakStmt (Span span)
         : Stmt(std::move(span))
     {}
+    virtual void write (std::ostream& os);
     virtual ~BreakStmt ();
 };
 
@@ -195,19 +200,18 @@ struct Expr
         : span(std::move(sp))
     {}
     virtual ~Expr () = 0;
+
+    // utilities
     virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
+
+    // for parser:
+    virtual StmtPtr make_assignment (Span span, ExprPtr rhs);
+
     Span span;
 
     std::string to_str ();
 };
-
-template <typename OutStream>
-OutStream& operator<< (OutStream& os, const ExprPtr& expr)
-{
-    expr->write(os);
-    return os;
-}
 
 /* 1234 */
 struct IntExpr : public Expr
@@ -242,6 +246,7 @@ struct VarExpr : public Expr
     {}
     virtual ~VarExpr ();
     virtual void write (std::ostream& os);
+    virtual StmtPtr make_assignment (Span span, ExprPtr rhs);
     VarName var_name;
 };
 
@@ -256,6 +261,7 @@ struct AppExpr : public Expr
     virtual ~AppExpr ();
     virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
+    virtual StmtPtr make_assignment (Span span, ExprPtr rhs);
     FnName fn_name;
     std::vector<ExprPtr> args;
 };
@@ -320,6 +326,23 @@ struct NewExpr : public Expr
     ExprPtr type;
     std::vector<ExprPtr> args;
 };
+
+
+
+template <typename OutStream>
+OutStream& operator<< (OutStream& os, const ExprPtr& expr)
+{
+    expr->write(os);
+    return os;
+}
+
+template <typename OutStream>
+OutStream& operator<< (OutStream& os, const StmtPtr& stmt)
+{
+    stmt->write(os);
+    return os;
+}
+
 
 
 }

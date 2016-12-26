@@ -18,6 +18,7 @@ ast::BodyStmts parse_stmts (lex::Lex& lexer);
 
 // expressions
 ast::ExprPtr parse_expr (lex::Lex& lexer);
+ast::ExprPtr parse_coterm (lex::Lex& lexer);
 ast::ExprPtr parse_term (lex::Lex& lexer);
 ast::ExprPtr parse_factor (lex::Lex& lexer);
 ast::ExprPtr parse_factor_base (lex::Lex& lexer);
@@ -28,6 +29,5 @@ ast::BodyStmts parse_else (lex::Lex& lexer);
 ast::KeyName parse_key (lex::Lex& lexer);
 std::vector<ast::VarName> parse_arg_names (lex::Lex& lexer);
 std::vector<ast::ExprPtr> parse_args (lex::Lex& lexer);
-
 
 }

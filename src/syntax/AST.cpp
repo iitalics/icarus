@@ -21,6 +21,12 @@ void Stmt::write (std::ostream& os)
 void Stmt::traverse (std::function<void(Expr*)> f) const { (void) f; }
 
 LetStmt::~LetStmt () {}
+void LetStmt::write (std::ostream& os)
+{
+    os << "Let(" << var_name << ", ";
+    init->write(os);
+    os << ")";
+}
 void LetStmt::traverse (std::function<void(Expr*)> f) const
 {
     f(init.get());
@@ -28,6 +34,12 @@ void LetStmt::traverse (std::function<void(Expr*)> f) const
 }
 
 SetVarStmt::~SetVarStmt () {}
+void SetVarStmt::write (std::ostream& os)
+{
+    os << "Set(" << var_name << ", ";
+    to->write(os);
+    os << ")";
+}
 void SetVarStmt::traverse (std::function<void(Expr*)> f) const
 {
     f(to.get());
@@ -35,6 +47,14 @@ void SetVarStmt::traverse (std::function<void(Expr*)> f) const
 }
 
 SetFieldStmt::~SetFieldStmt () {}
+void SetFieldStmt::write (std::ostream& os)
+{
+    os << "Set(";
+    expr->write(os);
+    os << "." << key << ", ";
+    to->write(os);
+    os << ")";
+}
 void SetFieldStmt::traverse (std::function<void(Expr*)> f) const
 {
     f(expr.get());
@@ -44,6 +64,15 @@ void SetFieldStmt::traverse (std::function<void(Expr*)> f) const
 }
 
 LoopStmt::~LoopStmt () {}
+void LoopStmt::write (std::ostream& os)
+{
+    os << "Loop[";
+    for (size_t i = 0; i < body.size(); i++) {
+        if (i > 0) os << "; ";
+        body[i]->write(os);
+    }
+    os << "]";
+}
 void LoopStmt::traverse (std::function<void(Expr*)> f) const
 {
     for (auto& stmt : body)
@@ -51,6 +80,10 @@ void LoopStmt::traverse (std::function<void(Expr*)> f) const
 }
 
 BreakStmt::~BreakStmt () {}
+void BreakStmt::write (std::ostream& os)
+{
+    os << "Break()";
+}
 
 ValueStmt::~ValueStmt () {}
 void ValueStmt::write (std::ostream& os)
@@ -72,6 +105,12 @@ void Expr::write (std::ostream& os)
 {
     os << "?";
 }
+StmtPtr Expr::make_assignment (Span span, ExprPtr rhs)
+{
+    (void) span; (void) rhs;
+    return nullptr;
+}
+
 
 std::string Expr::to_str ()
 {
@@ -97,6 +136,10 @@ void VarExpr::write (std::ostream& os)
 {
     os << var_name;
 }
+StmtPtr VarExpr::make_assignment (Span sp, ExprPtr rhs)
+{
+    return StmtPtr(new SetVarStmt(span + sp, var_name, std::move(rhs)));
+}
 
 AppExpr::~AppExpr () {}
 void AppExpr::traverse (std::function<void(Expr*)> f) const
@@ -115,6 +158,17 @@ void AppExpr::write (std::ostream& os)
     }
     os << ")";
 }
+StmtPtr AppExpr::make_assignment (Span sp, ExprPtr rhs)
+{
+    std::vector<ExprPtr> new_args;
+    new_args.reserve(args.size() + 1);
+    std::move(args.begin(), args.end(), std::back_inserter(new_args));
+    new_args.push_back(std::move(rhs));
+    auto new_app = ExprPtr(new AppExpr(span + sp, fn_name + "=",
+                                       std::move(new_args)));
+    return StmtPtr(new ValueStmt(span + sp, std::move(new_app)));
+}
+
 
 IfExpr::~IfExpr () {}
 void IfExpr::traverse (std::function<void(Expr*)> f) const
@@ -151,9 +205,8 @@ void FieldExpr::traverse (std::function<void(Expr*)> f) const
 }
 void FieldExpr::write (std::ostream& os)
 {
-    os << "Field(";
     expr->write(os);
-    os << ", " << key << ")";
+    os << "." << key;
 }
 
 DataTypeExpr::~DataTypeExpr () {}
