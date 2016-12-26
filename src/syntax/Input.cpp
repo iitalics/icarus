@@ -110,3 +110,24 @@ std::runtime_error span_error (Span span, const std::string& msg)
         % msg;
     return std::runtime_error(fmt.str());
 }
+
+Span Span::operator+ (const Span& uw) const
+{
+    if (input != uw.input)
+        return *this;
+    if (bol < uw.bol)
+        return *this;
+    if (uw.bol < bol)
+        return uw;
+
+    auto new_line = std::min(line, uw.line);
+    auto new_col = std::min(col, uw.col);
+    auto new_end = std::min(col + len, uw.col + uw.len);
+
+    Span res(input);
+    res.line = new_line;
+    res.col = new_col;
+    res.len = new_end - new_col;
+    res.bol = bol;
+    return res;
+}

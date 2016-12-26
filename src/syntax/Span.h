@@ -23,9 +23,10 @@ struct Span
     InputSrcPtr input;
 
     // note:
-    //   `pos' and `bol' are byte position in stream
-    //   `len' is in >characters<, not bytes
     //   `line' is line #, starting with 0 for first line
+    //   `col' is collumn #, starting with 0 for first collumn
+    //   `len' is span length, in characters
+    //   `bol' is beginning of line, relative to start of file, in bytes
     tpos line, col, len, bol;
 
     inline operator bool () const { return len > 0; }
