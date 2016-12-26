@@ -208,6 +208,10 @@ void FieldExpr::write (std::ostream& os)
     expr->write(os);
     os << "." << key;
 }
+StmtPtr FieldExpr::make_assignment (Span sp, ExprPtr rhs)
+{
+    return StmtPtr(new SetFieldStmt(sp, std::move(expr), std::move(key), std::move(rhs)));
+}
 
 DataTypeExpr::~DataTypeExpr () {}
 void DataTypeExpr::write (std::ostream& os)

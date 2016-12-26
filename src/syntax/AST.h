@@ -296,6 +296,7 @@ struct FieldExpr : public Expr
     virtual ~FieldExpr ();
     virtual void write (std::ostream& os);
     virtual void traverse (std::function<void(Expr*)> f) const;
+    virtual StmtPtr make_assignment (Span span, ExprPtr rhs);
     ExprPtr expr;
     KeyName key;
 };
