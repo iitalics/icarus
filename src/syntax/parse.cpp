@@ -65,6 +65,7 @@ FnName parse_fn_name (Lex& lx)
             return lx.take1().string_val;
         }
     case '+': case '-': case '*': case '/':
+    case '<': case '>': case T::Eq: case T::NotEq:
         // op
         return std::string(1, lx.take1().kind);
     default:
