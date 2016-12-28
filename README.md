@@ -9,11 +9,15 @@ simple language interpreter for experimentation
   - [x] Parser
 
 - [ ] Runtime
-  - [ ] Definitions
+  - [x] Definitions
+  - [ ] Interpreter context
   - [ ] Garbage collector
 
-- [ ] Bytecode
+- [ ] Interpreter
+  - [ ] Bytecode instructions
+  - [ ] Bytecode interpreter
+  - [ ] Standard library functions
+
+- [ ] Compiler
   - [ ] Definitions
-  - [ ] Interpreter
-  - [ ] Compiler
-  - [ ] JIT
+  - [ ] AST to Bytecode compiler
