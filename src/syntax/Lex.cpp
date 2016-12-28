@@ -75,7 +75,6 @@ void Lex::read_ ()
     }
 
     const rune hd = src->head;
-    std::string hd_str;
 
     if (runes::is_delimeter(hd)) {
         buffer_.emplace_back(hd, span_here());

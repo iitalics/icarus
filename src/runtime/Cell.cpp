@@ -15,8 +15,7 @@ Cell Cell::type_type = nullptr;
 namespace {
 struct CellSingetonInitialize
 {
-    static inline Cell static_alloc (uint8_t type,
-                                     uint16_t size = 0)
+    static inline Cell static_alloc (uint8_t type, uint16_t size = 0)
     {
         Object* obj = (Object*)
             new char[sizeof(Object) + size];
@@ -38,7 +37,7 @@ struct CellSingetonInitialize
         Cell::array_type  = static_alloc(Object::Datatype | Object::DatatypeNoInst);
     }
 };
-// call during init()
+// slight hack to call constructor before main()
 CellSingetonInitialize _;
 }
 

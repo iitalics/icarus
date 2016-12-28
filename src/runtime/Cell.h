@@ -115,6 +115,8 @@ struct Cell
 							obj->data_as_cells() + size);
 	}
 
+    // can be called for any object, returns a datatype object
+    // or returns null (the type of null is null)
     Cell get_type () const;
 
 
@@ -133,7 +135,8 @@ struct Cell
 
     /* misc */
 
-    inline static Cell nil () { return Cell(); }
+    inline static Cell nil ()
+    { return Cell(); }
 
 	inline static Cell from_fixnum (Fixnum fx)
 	{
