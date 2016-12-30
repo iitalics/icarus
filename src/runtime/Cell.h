@@ -1,6 +1,7 @@
 #pragma once
 #include "../datatypes.h"
 #include <boost/utility/string_ref.hpp>
+#include <boost/range/iterator_range.hpp>
 
 namespace run {
 
@@ -13,7 +14,6 @@ data forms:
   - array
   - datatype
   - instance
-
  */
 
 struct Cell;
@@ -21,22 +21,39 @@ struct Cell;
 struct Object
 {
 	enum {
+        TypeMask =  0x1f,
+
+        // flags for discerning type:
 		Instance =  0x00,
 		Array =     0x01,
 		Bool =      0x06,  True = 0x02, False = 0x04,
 		String =    0x08,
 		Datatype =  0x10,
-        DatatypeNoInst = 0x20,
 
-		// static objects are never freed during GC
+        // additional flags:
+        DatatypeNoInst = 0x20,
 		Static = 0x80,
 	};
 
 	uint8_t type;
+    uint8_t gc_status;
 	uint16_t size;
 	char data[0];
 
-    inline Cell* data_as_cells () const { return (Cell*) data; }
+    struct DatatypeDesc
+    {
+        size_t count;
+        boost::string_ref fields[0];
+    };
+
+    inline Cell* data_as_cells () const
+    {
+        return (Cell*) data;
+    }
+    inline DatatypeDesc* data_as_datatype_desc () const
+    {
+        return (DatatypeDesc*) data;
+    }
 };
 
 struct Cell
@@ -60,9 +77,9 @@ struct Cell
 	inline bool is_bool () const      { return obj->type & Object::Bool; }
 	inline bool is_datatype () const  { return obj->type & Object::Datatype; }
 	inline bool is_array () const     { return obj->type & Object::Array; }
-	inline bool is_instance () const  { return obj->type == 0x00 || obj->type == Object::Static; }
 	inline bool is_static () const    { return obj->type & Object::Static; }
-	inline bool has_children () const { return obj->type <= 0x1; }
+	inline bool is_instance () const  { return (obj->type & Object::TypeMask) == 0x00; }
+	inline bool has_children () const { return (obj->type & Object::TypeMask) <= 0x1; }
     inline bool can_make_instances () const
     {
         return (obj->type & Object::Datatype)
@@ -90,30 +107,22 @@ struct Cell
     }
 
 	// when is_object() and has_children() are both true
-	// object type for iterating over & accessing object's children
-	struct CellChildren
-	{
-		CellChildren ()
-			: begin_(nullptr), end_(nullptr)
-		{}
-		CellChildren (Cell* b, Cell* e)
-			: begin_(b)
-			, end_(e)
-		{}
-		inline Cell* begin () const { return begin_; }
-		inline Cell* end () const { return end_; }
-		inline size_t size () const { return end_ - begin_; }
-		inline Cell operator[] (size_t i) const { return begin_[i]; }
-	private:
-		Cell* begin_;
-		Cell* end_;
-	};
+    using CellChildren = boost::iterator_range<Cell*>;
 	inline CellChildren children () const
 	{
         auto size = obj->size / sizeof(Cell);
 		return CellChildren(obj->data_as_cells(),
 							obj->data_as_cells() + size);
 	}
+
+    // when is_datatype() and can_make_instances()
+    using DatatypeFields = boost::iterator_range<boost::string_ref*>;
+    inline DatatypeFields fields () const
+    {
+        auto desc = obj->data_as_datatype_desc();
+        return DatatypeFields(desc->fields,
+                              desc->fields + desc->count);
+    }
 
     // can be called for any object, returns a datatype object
     // or returns null (the type of null is null)

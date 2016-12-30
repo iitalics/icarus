@@ -1,8 +1,10 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
-#include "Function.h"
 #include "Cell.h"
+
+#include "Function.h"
+#include "GC.h"
 
 namespace run {
 
@@ -28,6 +30,7 @@ struct State
     State ();
 
     Environment env;
+    GC gc;
 };
 
 
