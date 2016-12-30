@@ -12,13 +12,15 @@ Instruction Instruction::mov_fxn (int dst, Fixnum fxn)
     return (Instruction)
         { .kind = Kind::MovFxn, .data = { .move = { 0, dst, fxn } } };
 }
-Instruction Instruction::load ()
+Instruction Instruction::load (int src)
 {
-    return (Instruction) { .kind = Kind::Load };
+    return (Instruction)
+        { .kind = Kind::Load, .data = { .move = { src, 0, 0 } } };
 }
-Instruction Instruction::store ()
+Instruction Instruction::store (int dst)
 {
-    return (Instruction) { .kind = Kind::Store };
+    return (Instruction)
+        { .kind = Kind::Store, .data = { .move = { 0, dst, 0 } } };
 }
 Instruction Instruction::call (run::Function* fn, int first_reg, int argc)
 {

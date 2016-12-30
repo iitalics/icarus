@@ -24,8 +24,8 @@ struct Instruction
 
     Instruction mov (int dst, int src);
     Instruction mov_fxn (int dst, Fixnum fxn);
-    Instruction load ();
-    Instruction store ();
+    Instruction load (int src);
+    Instruction store (int dst);
     Instruction call (run::Function* fn, int first_reg, int argc);
     Instruction tail_call (run::Function* fn, int first_reg, int argc);
     Instruction jump (int loc);
