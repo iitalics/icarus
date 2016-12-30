@@ -3,6 +3,7 @@
 
 namespace run {
 struct Function;
+struct State;
 }
 
 namespace bytecode {
@@ -10,45 +11,39 @@ namespace bytecode {
 struct Instruction
 {
     enum Kind {
-        MovReg, // mov <rd>, <rs>       [ rd <- rs ]
-        MovFxn,  // mov <rd>, #<fixnum> [ rd <- (N) ]
-        Load,   // lod <rs>             [ X0 <- rs ]
-        Store,  // sto <rd>             [ rd <- X0 ]
-        Call,   // call F (rk..r{k+n})  [ X0 <- F(rk, .. r{k+n}) ]
-        Tail,   // tcall F (rk..r{k+n}) [ X0 <- F(rk, .. r{k+n}); return X0 ]
-        Return, // ret                  [ return X0 ]
+        Fxn,    // fxn #<n>             [ tmp <- n ]
+        Load,   // lod <rs>             [ tmp <- rs ]
+        Store,  // sto <rd>             [ rd <- tmp ]
+        Call,   // call F (rk..r{k+n})  [ tmp <- F(rk, .. r{k+n}) ]
+        Tail,   // tcall F (rk..r{k+n}) [ tmp <- F(rk, .. r{k+n}); return tmp ]
+        Return, // ret                  [ return tmp ]
         Jump,   // jmp Lk               [ goto Lk ]
-        Branch, // br Lk                [ if ! X0 { goto Lk } ]
+        Branch, // br Lk                [ if ! tmp { goto Lk } ]
     };
     Kind kind;
 
-    Instruction mov (int dst, int src);
-    Instruction mov_fxn (int dst, Fixnum fxn);
-    Instruction load (int src);
-    Instruction store (int dst);
-    Instruction call (run::Function* fn, int first_reg, int argc);
-    Instruction tail_call (run::Function* fn, int first_reg, int argc);
-    Instruction jump (int loc);
-    Instruction branch (int loc_alt);
+    static Instruction fxn (Fixnum fxn);
+    static Instruction load (int src);
+    static Instruction store (int dst);
+    static Instruction call (run::Function* fn, int first_reg, size_t argc);
+    static Instruction tail_call (run::Function* fn, int first_reg, size_t argc);
+    static Instruction jump (int loc);
+    static Instruction branch (int loc_alt);
+    static Instruction ret ();
 
     union {
-        struct {
-            int src, dst;
-            Fixnum fxn;
-        } move;
+        int src;
+        int dst;
+        Fixnum fxn;
+        int jmp_loc;
 
         struct {
             run::Function* fn;
             int first_reg;
-            int argc;
+            size_t argc;
         } call;
 
-        struct {
-            int loc;
-        } jmp;
-
     } data;
-
 };
 
 }

@@ -149,7 +149,7 @@ struct Cell
 
 	inline static Cell from_fixnum (Fixnum fx)
 	{
-		return Cell((Object*) ((fx << 1) | 1));
+		return Cell((Object*) ((uintptr_t(fx) << 1) | 1));
 	}
 };
 

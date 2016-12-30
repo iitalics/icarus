@@ -6,6 +6,7 @@ namespace {
 
 Cell proc_add (State* s, Cell* args)
 {
+    (void) s;
     if (args[0].is_integer() && args[1].is_integer()) {
         Fixnum fx = args[0].integer() + args[1].integer();
         return Cell::from_fixnum(fx);
@@ -16,6 +17,7 @@ Cell proc_add (State* s, Cell* args)
 
 Cell proc_sub (State* s, Cell* args)
 {
+    (void) s;
     if (args[0].is_integer() && args[1].is_integer()) {
         Fixnum fx = args[0].integer() - args[1].integer();
         return Cell::from_fixnum(fx);
@@ -26,6 +28,7 @@ Cell proc_sub (State* s, Cell* args)
 
 Cell proc_less (State* s, Cell* args)
 {
+    (void) s;
     if (args[0].is_integer() && args[1].is_integer()) {
         bool cond = args[0].integer() < args[1].integer();
         return cond ? Cell::true_object : Cell::false_object;

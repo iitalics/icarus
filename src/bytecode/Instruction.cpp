@@ -2,32 +2,27 @@
 
 namespace bytecode {
 
-Instruction Instruction::mov (int dst, int src)
+Instruction Instruction::fxn (Fixnum fxn)
 {
     return (Instruction)
-        { .kind = Kind::MovReg, .data = { .move = { src, dst, 0 } } };
-}
-Instruction Instruction::mov_fxn (int dst, Fixnum fxn)
-{
-    return (Instruction)
-        { .kind = Kind::MovFxn, .data = { .move = { 0, dst, fxn } } };
+        { .kind = Kind::Fxn, .data = { .fxn = fxn } };
 }
 Instruction Instruction::load (int src)
 {
     return (Instruction)
-        { .kind = Kind::Load, .data = { .move = { src, 0, 0 } } };
+        { .kind = Kind::Load, .data = { .src = src } };
 }
 Instruction Instruction::store (int dst)
 {
     return (Instruction)
-        { .kind = Kind::Store, .data = { .move = { 0, dst, 0 } } };
+        { .kind = Kind::Store, .data = { .dst = dst } };
 }
-Instruction Instruction::call (run::Function* fn, int first_reg, int argc)
+Instruction Instruction::call (run::Function* fn, int first_reg, size_t argc)
 {
     return (Instruction)
         { .kind = Kind::Call, .data = { .call = { fn, first_reg, argc } } };
 }
-Instruction Instruction::tail_call (run::Function* fn, int first_reg, int argc)
+Instruction Instruction::tail_call (run::Function* fn, int first_reg, size_t argc)
 {
     return (Instruction)
         { .kind = Kind::Tail, .data = { .call = { fn, first_reg, argc } } };
@@ -35,12 +30,17 @@ Instruction Instruction::tail_call (run::Function* fn, int first_reg, int argc)
 Instruction Instruction::jump (int loc)
 {
     return (Instruction)
-        { .kind = Kind::Jump, .data = { .jmp = { loc } } };
+        { .kind = Kind::Jump, .data = { .jmp_loc = loc } };
 }
 Instruction Instruction::branch (int loc_alt)
 {
     return (Instruction)
-        { .kind = Kind::Branch, .data = { .jmp = { loc_alt } } };
+        { .kind = Kind::Branch, .data = { .jmp_loc = loc_alt } };
+}
+Instruction Instruction::ret ()
+{
+    return (Instruction)
+        { .kind = Kind::Return };
 }
 
 }

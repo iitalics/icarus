@@ -45,6 +45,8 @@ struct FunctionImpl
     ast::FunctionDefn* to_be_compiled;
 
     // TODO: compiled bytecode
+
+    Cell call (State* state, Cell* args);
 };
 
 
