@@ -10,11 +10,11 @@ simple language interpreter for experimentation
 
 - [ ] Runtime
   - [x] Definitions
-  - [ ] Interpreter context
+  - [x] Interpreter context
   - [ ] Garbage collector
 
 - [ ] Interpreter
-  - [ ] Bytecode instructions
+  - [x] Bytecode instructions
   - [ ] Bytecode interpreter
   - [ ] Standard library functions
 
